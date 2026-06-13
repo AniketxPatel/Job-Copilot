@@ -1,0 +1,14 @@
+{
+  "manifest_version": 3,
+  "name": "Job Copilot",
+  "version": "1.0",
+  "description": "Generate high-quality job application answers",
+  "permissions": [
+    "storage",
+    "unlimitedStorage",
+    "activeTab"
+  ],
+  "action": {
+    "default_popup": "index.html"
+  }
+}
