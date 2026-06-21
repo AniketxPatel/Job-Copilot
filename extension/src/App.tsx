@@ -1,16 +1,34 @@
 import { useState, useEffect } from 'react';
 import clsx from 'clsx';
 import { storage } from './lib/storage';
+import { supabase } from './lib/supabase';
 import { ResumeSettings } from './components/ResumeSettings';
 import { GenerateForm } from './components/GenerateForm';
+import { Auth } from './components/Auth';
 
 export default function App() {
   const [activeTab, setActiveTab] = useState<'generate' | 'settings'>('generate');
   const [resume, setResume] = useState('');
   const [resumePdf, setResumePdf] = useState('');
   const [resumeSavedMessage, setResumeSavedMessage] = useState(false);
+  const [session, setSession] = useState<any>(null);
 
   useEffect(() => {
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setSession(session);
+    });
+
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((_event, session) => {
+      setSession(session);
+    });
+
+    return () => subscription.unsubscribe();
+  }, []);
+
+  useEffect(() => {
+    if (!session) return;
     Promise.all([storage.getResume(), storage.getResumePdf()]).then(([savedResume, savedResumePdf]) => {
       if (savedResume) {
         setResume(savedResume);
@@ -19,7 +37,62 @@ export default function App() {
         setActiveTab('settings');
       }
     });
-  }, []);
+  }, [session]);
+
+  const [jd, setJd] = useState('');
+  const [companyUrl, setCompanyUrl] = useState('');
+  const [question, setQuestion] = useState('');
+  const [isScraping, setIsScraping] = useState(false);
+
+  const scrapeActiveTab = async () => {
+    setIsScraping(true);
+    try {
+      const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
+      if (tab?.id) {
+        try {
+          await chrome.scripting.executeScript({
+            target: { tabId: tab.id },
+            files: ['content.js']
+          });
+        } catch (e) {
+          console.log('Script injection skipped/failed, trying messaging directly:', e);
+        }
+
+        chrome.tabs.sendMessage(tab.id, { type: 'SCRAPE_PAGE' }, (response) => {
+          if (chrome.runtime.lastError) {
+            console.warn(chrome.runtime.lastError.message);
+            setIsScraping(false);
+            return;
+          }
+          if (response) {
+            if (response.jd) setJd(response.jd);
+            if (response.companyUrl) {
+              setCompanyUrl(response.companyUrl);
+            } else if (tab.url) {
+              setCompanyUrl(tab.url);
+            }
+            if (response.questions && response.questions.length > 0) {
+              setQuestion(response.questions[0].question);
+            } else {
+              setQuestion(''); // Clear if no question detected
+            }
+          }
+          setIsScraping(false);
+        });
+      } else {
+        setIsScraping(false);
+      }
+    } catch (err) {
+      console.error('Failed to query tab:', err);
+      setIsScraping(false);
+    }
+  };
+
+  useEffect(() => {
+    if (session) {
+      scrapeActiveTab();
+    }
+  }, [session]);
 
   const handleSaveResume = async (newResume: string, newResumePdf: string) => {
     await Promise.all([
@@ -29,6 +102,7 @@ export default function App() {
     setResumeSavedMessage(true);
     setTimeout(() => setResumeSavedMessage(false), 2000);
   };
+
 
   return (
     <div className="w-[450px] min-h-[550px] bg-slate-950 text-slate-100 font-sans p-4 relative overflow-hidden selection:bg-indigo-500/30">
@@ -47,29 +121,44 @@ export default function App() {
             Job Copilot
           </h1>
         </div>
-        <div className="flex bg-slate-900/80 rounded-lg p-1 border border-slate-800 backdrop-blur-md">
-          <button
-            onClick={() => setActiveTab('generate')}
-            className={clsx(
-              "px-3 py-1.5 text-xs font-medium rounded-md transition-all duration-200",
-              activeTab === 'generate' ? "bg-indigo-500 text-white shadow-md shadow-indigo-500/20" : "text-slate-400 hover:text-slate-200 hover:bg-slate-800"
-            )}
-          >
-            Generate
-          </button>
-          <button
-            onClick={() => setActiveTab('settings')}
-            className={clsx(
-              "px-3 py-1.5 text-xs font-medium rounded-md transition-all duration-200",
-              activeTab === 'settings' ? "bg-indigo-500 text-white shadow-md shadow-indigo-500/20" : "text-slate-400 hover:text-slate-200 hover:bg-slate-800"
-            )}
-          >
-            Resume
-          </button>
-        </div>
+        {session && (
+          <div className="flex bg-slate-900/80 rounded-lg p-1 border border-slate-800 backdrop-blur-md items-center gap-2">
+            <div className="flex">
+              <button
+                onClick={() => setActiveTab('generate')}
+                className={clsx(
+                  "px-3 py-1.5 text-xs font-medium rounded-md transition-all duration-200",
+                  activeTab === 'generate' ? "bg-indigo-500 text-white shadow-md shadow-indigo-500/20" : "text-slate-400 hover:text-slate-200 hover:bg-slate-800"
+                )}
+              >
+                Generate
+              </button>
+              <button
+                onClick={() => setActiveTab('settings')}
+                className={clsx(
+                  "px-3 py-1.5 text-xs font-medium rounded-md transition-all duration-200",
+                  activeTab === 'settings' ? "bg-indigo-500 text-white shadow-md shadow-indigo-500/20" : "text-slate-400 hover:text-slate-200 hover:bg-slate-800"
+                )}
+              >
+                Resume
+              </button>
+            </div>
+            <button
+              onClick={() => supabase.auth.signOut()}
+              className="px-2 py-1.5 text-xs font-medium text-slate-400 hover:text-rose-400 transition-colors ml-1"
+              title="Sign Out"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+              </svg>
+            </button>
+          </div>
+        )}
       </header>
 
-      {activeTab === 'settings' ? (
+      {!session ? (
+        <Auth />
+      ) : activeTab === 'settings' ? (
         <ResumeSettings 
           resume={resume} 
           resumePdf={resumePdf}
@@ -79,7 +168,14 @@ export default function App() {
           resumeSavedMessage={resumeSavedMessage} 
         />
       ) : (
-        <GenerateForm resume={resume} />
+        <GenerateForm 
+          resume={resume} 
+          initialJd={jd}
+          initialQuestion={question}
+          initialCompanyUrl={companyUrl}
+          isScraping={isScraping}
+          onReScrape={scrapeActiveTab}
+        />
       )}
     </div>
   );

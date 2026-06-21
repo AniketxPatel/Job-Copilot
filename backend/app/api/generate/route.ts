@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { generateJobAnswer } from '../../../lib/gemini';
+import { supabase } from '../../../lib/supabase';
 import { GenerateRequest } from '../../../lib/types';
 
 // Simple scraper without external libraries
@@ -49,12 +50,38 @@ export async function OPTIONS() {
 
 export async function POST(req: Request) {
   try {
+    const authHeader = req.headers.get('Authorization');
+    const token = authHeader?.replace('Bearer ', '');
+    
+    if (!token) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401, headers: { 'Access-Control-Allow-Origin': '*' } });
+    }
+
+    const { data: { user }, error: authError } = await supabase.auth.getUser(token);
+    
+    if (authError || !user) {
+      return NextResponse.json({ error: 'Invalid token' }, { status: 401, headers: { 'Access-Control-Allow-Origin': '*' } });
+    }
+
     const data = (await req.json()) as GenerateRequest;
     
-    if (!data.resume || !data.question) {
-      return NextResponse.json({ error: 'Resume and Application Question are required.' }, { status: 400, headers: { 'Access-Control-Allow-Origin': '*' } });
+    if (!data.question) {
+      return NextResponse.json({ error: 'Application Question is required.' }, { status: 400, headers: { 'Access-Control-Allow-Origin': '*' } });
     }
-    
+
+    const { data: profile } = await supabase
+      .from('profiles')
+      .select('resume_text')
+      .eq('id', user.id)
+      .single();
+
+    if (!profile?.resume_text) {
+      return NextResponse.json({ error: 'No resume found in your account. Please upload one first.' }, { status: 400, headers: { 'Access-Control-Allow-Origin': '*' } });
+    }
+
+    // Override the resume data sent from client with the verified one from DB
+    data.resume = profile.resume_text;
+
     const companySummary = await fetchCompanySummary(data.companyUrl);
     const answer = await generateJobAnswer(data, companySummary);
     

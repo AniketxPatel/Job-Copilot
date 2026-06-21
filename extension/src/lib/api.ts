@@ -3,12 +3,16 @@ import type { GenerateRequest, GenerateResponse } from './types';
 const API_URL = 'http://localhost:3000/api/generate';
 const EXTRACT_URL = 'http://localhost:3000/api/extract-resume';
 
-export const extractResume = async (file: File): Promise<string> => {
+export const extractResume = async (file: File, token?: string): Promise<string> => {
   const formData = new FormData();
   formData.append('file', file);
   
+  const headers: HeadersInit = {};
+  if (token) headers['Authorization'] = `Bearer ${token}`;
+
   const response = await fetch(EXTRACT_URL, {
     method: 'POST',
+    headers,
     body: formData,
   });
 
@@ -21,12 +25,15 @@ export const extractResume = async (file: File): Promise<string> => {
   return data.text;
 };
 
-export const generateAnswer = async (data: GenerateRequest): Promise<GenerateResponse> => {
+export const generateAnswer = async (data: GenerateRequest, token?: string): Promise<GenerateResponse> => {
+  const headers: HeadersInit = {
+    'Content-Type': 'application/json',
+  };
+  if (token) headers['Authorization'] = `Bearer ${token}`;
+
   const response = await fetch(API_URL, {
     method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
+    headers,
     body: JSON.stringify(data),
   });
 

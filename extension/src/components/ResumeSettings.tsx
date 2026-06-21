@@ -1,4 +1,5 @@
 import { useState, useRef } from 'react';
+import { supabase } from '../lib/supabase';
 import { extractResume } from '../lib/api';
 import clsx from 'clsx';
 
@@ -24,7 +25,8 @@ export function ResumeSettings({ resume, resumePdf, setResume, setResumePdf, onS
     
     setIsUploading(true);
     try {
-      const text = await extractResume(file);
+      const { data: { session } } = await supabase.auth.getSession();
+      const text = await extractResume(file, session?.access_token);
       const reader = new FileReader();
       reader.onloadend = () => {
         const base64data = reader.result as string;
