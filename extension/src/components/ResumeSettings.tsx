@@ -6,13 +6,15 @@ import clsx from 'clsx';
 interface Props {
   resume: string;
   resumePdf: string;
+  resumeName: string;
   setResume: (val: string) => void;
   setResumePdf: (val: string) => void;
-  onSave: (resume: string, resumePdf: string) => void;
+  setResumeName: (val: string) => void;
+  onSave: (resume: string, resumePdf: string, resumeName: string) => void;
   resumeSavedMessage: boolean;
 }
 
-export function ResumeSettings({ resume, resumePdf, setResume, setResumePdf, onSave, resumeSavedMessage }: Props) {
+export function ResumeSettings({ resume, resumePdf, resumeName, setResume, setResumePdf, setResumeName, onSave, resumeSavedMessage }: Props) {
   const [isUploading, setIsUploading] = useState(false);
   const [dragActive, setDragActive] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -26,13 +28,16 @@ export function ResumeSettings({ resume, resumePdf, setResume, setResumePdf, onS
     setIsUploading(true);
     try {
       const { data: { session } } = await supabase.auth.getSession();
-      const text = await extractResume(file, session?.access_token);
+      const result = await extractResume(file, session?.access_token);
+      const text = result.text;
+      
       const reader = new FileReader();
       reader.onloadend = () => {
         const base64data = reader.result as string;
         setResume(text);
         setResumePdf(base64data);
-        onSave(text, base64data);
+        setResumeName(file.name);
+        onSave(text, base64data, file.name);
       };
       reader.readAsDataURL(file);
     } catch (err: any) {
@@ -104,13 +109,20 @@ export function ResumeSettings({ resume, resumePdf, setResume, setResumePdf, onS
       ) : (
         <div className="flex flex-col flex-1 min-h-0">
           <div className="flex-1 bg-slate-900/50 border border-slate-800 rounded-xl p-2 text-xs text-slate-400 overflow-hidden mb-4 relative flex flex-col">
-            <div className="flex items-center gap-2 mb-2 pb-2 border-b border-slate-800/80 px-2 shrink-0">
-              <div className="bg-green-500/20 p-1 rounded">
-                <svg className="w-4 h-4 text-green-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                </svg>
+            <div className="flex items-center justify-between gap-2 mb-2 pb-2 border-b border-slate-800/80 px-2 shrink-0">
+              <div className="flex items-center gap-2">
+                <div className="bg-green-500/20 p-1 rounded">
+                  <svg className="w-4 h-4 text-green-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                  </svg>
+                </div>
+                <span className="font-medium text-slate-300">Resume Uploaded</span>
               </div>
-              <span className="font-medium text-slate-300">Resume Uploaded Successfully</span>
+              {resumeName && (
+                <span className="text-[10px] text-indigo-400 font-semibold truncate max-w-[170px] bg-indigo-500/10 px-2.5 py-1 rounded-md border border-indigo-500/20" title={resumeName}>
+                  {resumeName}
+                </span>
+              )}
             </div>
             {resumePdf ? (
               <iframe 
@@ -126,7 +138,7 @@ export function ResumeSettings({ resume, resumePdf, setResume, setResumePdf, onS
           </div>
           
           <button
-            onClick={() => { setResume(''); setResumePdf(''); onSave('', ''); }}
+            onClick={() => { setResume(''); setResumePdf(''); setResumeName(''); onSave('', '', ''); }}
             className="shrink-0 w-full py-3 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded-xl font-medium transition-all duration-200 border border-slate-700"
           >
             Upload a Different Resume

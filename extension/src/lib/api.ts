@@ -3,7 +3,7 @@ import type { GenerateRequest, GenerateResponse } from './types';
 const API_URL = 'http://localhost:3000/api/generate';
 const EXTRACT_URL = 'http://localhost:3000/api/extract-resume';
 
-export const extractResume = async (file: File, token?: string): Promise<string> => {
+export const extractResume = async (file: File, token?: string): Promise<{ text: string; resume_pdf_url?: string }> => {
   const formData = new FormData();
   formData.append('file', file);
   
@@ -22,7 +22,7 @@ export const extractResume = async (file: File, token?: string): Promise<string>
   }
 
   const data = await response.json();
-  return data.text;
+  return { text: data.text, resume_pdf_url: data.resume_pdf_url };
 };
 
 export const generateAnswer = async (data: GenerateRequest, token?: string): Promise<GenerateResponse> => {

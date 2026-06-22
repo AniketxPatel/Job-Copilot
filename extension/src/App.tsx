@@ -10,6 +10,7 @@ export default function App() {
   const [activeTab, setActiveTab] = useState<'generate' | 'settings'>('generate');
   const [resume, setResume] = useState('');
   const [resumePdf, setResumePdf] = useState('');
+  const [resumeName, setResumeName] = useState('');
   const [resumeSavedMessage, setResumeSavedMessage] = useState(false);
   const [session, setSession] = useState<any>(null);
 
@@ -32,14 +33,16 @@ export default function App() {
     
     const loadResume = async () => {
       // 1. Check local storage first
-      const [savedResume, savedResumePdf] = await Promise.all([
+      const [savedResume, savedResumePdf, savedResumeName] = await Promise.all([
         storage.getResume(),
-        storage.getResumePdf()
+        storage.getResumePdf(),
+        storage.getResumeName()
       ]);
       
-      if (savedResume) {
+      if (savedResume && savedResumeName) {
         setResume(savedResume);
         if (savedResumePdf) setResumePdf(savedResumePdf);
+        setResumeName(savedResumeName);
         return;
       }
       
@@ -55,7 +58,19 @@ export default function App() {
           const profile = await res.json();
           if (profile?.resume_text) {
             let base64Pdf = '';
+            let extractedName = '';
+            
             if (profile.resume_pdf_url) {
+              // Extract original filename from storage URL path
+              const urlParts = profile.resume_pdf_url.split('/');
+              const lastPart = urlParts[urlParts.length - 1];
+              const underscoreIdx = lastPart.indexOf('_');
+              if (underscoreIdx !== -1) {
+                extractedName = decodeURIComponent(lastPart.substring(underscoreIdx + 1));
+              } else {
+                extractedName = 'resume.pdf';
+              }
+
               try {
                 const pdfRes = await fetch(profile.resume_pdf_url);
                 if (pdfRes.ok) {
@@ -73,11 +88,13 @@ export default function App() {
             
             await Promise.all([
               storage.saveResume(profile.resume_text),
-              storage.saveResumePdf(base64Pdf)
+              storage.saveResumePdf(base64Pdf),
+              storage.saveResumeName(extractedName)
             ]);
             
             setResume(profile.resume_text);
             if (base64Pdf) setResumePdf(base64Pdf);
+            if (extractedName) setResumeName(extractedName);
           } else {
             setActiveTab('settings');
           }
@@ -194,11 +211,13 @@ export default function App() {
     }
   }, [session]);
 
-  const handleSaveResume = async (newResume: string, newResumePdf: string) => {
+  const handleSaveResume = async (newResume: string, newResumePdf: string, newResumeName: string) => {
     await Promise.all([
       storage.saveResume(newResume),
-      storage.saveResumePdf(newResumePdf)
+      storage.saveResumePdf(newResumePdf),
+      storage.saveResumeName(newResumeName)
     ]);
+    setResumeName(newResumeName);
     setResumeSavedMessage(true);
     setTimeout(() => setResumeSavedMessage(false), 2000);
   };
@@ -267,11 +286,13 @@ export default function App() {
                 await Promise.all([
                   storage.saveResume(''),
                   storage.saveResumePdf(''),
+                  storage.saveResumeName(''),
                   storage.saveFormState(null),
                   storage.saveGeneratedAnswer('')
                 ]);
                 setResume('');
                 setResumePdf('');
+                setResumeName('');
               }}
               className="px-2 py-1.5 text-xs font-medium text-slate-400 hover:text-rose-400 transition-colors ml-1 cursor-pointer"
               title="Sign Out"
@@ -291,8 +312,10 @@ export default function App() {
           <ResumeSettings 
             resume={resume} 
             resumePdf={resumePdf}
+            resumeName={resumeName}
             setResume={setResume} 
             setResumePdf={setResumePdf}
+            setResumeName={setResumeName}
             onSave={handleSaveResume} 
             resumeSavedMessage={resumeSavedMessage} 
           />

@@ -29,6 +29,20 @@ export const storage = {
       });
     });
   },
+  getResumeName: async (): Promise<string> => {
+    return new Promise((resolve) => {
+      chrome.storage.local.get(['resumeName'], (result: any) => {
+        resolve(result.resumeName || '');
+      });
+    });
+  },
+  saveResumeName: async (resumeName: string): Promise<void> => {
+    return new Promise((resolve) => {
+      chrome.storage.local.set({ resumeName }, () => {
+        resolve();
+      });
+    });
+  },
   getFormState: async (): Promise<any> => {
     return new Promise((resolve) => {
       chrome.storage.local.get(['formState'], (result: any) => {

@@ -75,7 +75,8 @@ export async function POST(req: Request) {
     }
 
     // Upload PDF to Supabase Storage
-    const fileName = `${user.id}/${Date.now()}_resume.pdf`;
+    const sanitizedName = file.name.replace(/[^a-zA-Z0-9.-]/g, '_');
+    const fileName = `${user.id}/${Date.now()}_${sanitizedName}`;
     const { data: uploadData, error: uploadError } = await supabase.storage
       .from('resumes')
       .upload(fileName, buffer, {
@@ -108,7 +109,7 @@ export async function POST(req: Request) {
     }
 
     return NextResponse.json(
-      { text },
+      { text, resume_pdf_url: publicUrlData.publicUrl },
       { headers: { 'Access-Control-Allow-Origin': '*' } }
     );
 
