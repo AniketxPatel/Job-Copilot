@@ -11,6 +11,7 @@ interface Props {
   initialQuestion?: string;
   initialCompanyUrl?: string;
   isScraping?: boolean;
+  scrapeError?: string;
   onReScrape?: () => void;
 }
 
@@ -20,6 +21,7 @@ export function GenerateForm({
   initialQuestion = '', 
   initialCompanyUrl = '', 
   isScraping = false, 
+  scrapeError = '',
   onReScrape 
 }: Props) {
   const [answer, setAnswer] = useState('');
@@ -143,6 +145,16 @@ export function GenerateForm({
 
   return (
     <div className="animate-in fade-in slide-in-from-bottom-2 duration-300 flex flex-col gap-4">
+      
+      {/* Scrape Error Warning */}
+      {scrapeError && (
+        <div className="p-3 bg-amber-500/10 border border-amber-500/20 rounded-xl text-xs text-amber-400 flex items-start gap-2.5 animate-in fade-in duration-300">
+          <svg className="w-4 h-4 shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+          </svg>
+          <span className="leading-relaxed">{scrapeError}</span>
+        </div>
+      )}
       
       {/* Manual Input form */}
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">

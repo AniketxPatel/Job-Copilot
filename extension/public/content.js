@@ -131,6 +131,74 @@ function scrapeCompanyUrl() {
   return '';
 }
 
+// Helper: Identify Company Name
+function scrapeCompanyName() {
+  // 1. Try parsing JSON-LD Schema (Google Job Search schema)
+  const jsonLdScripts = document.querySelectorAll('script[type="application/ld+json"]');
+  for (const script of jsonLdScripts) {
+    try {
+      const data = JSON.parse(script.innerText);
+      const objects = Array.isArray(data) ? data : [data];
+      for (const obj of objects) {
+        if (obj['@type'] === 'JobPosting' || obj['@context']?.includes('schema.org')) {
+          const org = obj.hiringOrganization;
+          if (org) {
+            const name = typeof org === 'string' ? org : org.name;
+            if (name) return name.trim();
+          }
+        }
+      }
+    } catch (e) { }
+  }
+
+  // 2. Platform-specific selectors
+  // Wellfound specific
+  const wellfoundNameEl = document.querySelector('h2[class*="styles_companyLink"], a[class*="styles_companyLink"], [class*="companyName"], h2[class*="companyName"], [class*="companyLink"]');
+  if (wellfoundNameEl && wellfoundNameEl.innerText.trim()) {
+    return wellfoundNameEl.innerText.trim();
+  }
+
+  // General selectors
+  const nameSelectors = [
+    '.company-header',
+    '.company-name',
+    '[class*="companyName"]',
+    '[class*="company-name"]',
+    '[class*="company_name"]',
+    '.job-details__company-name',
+    '.posting-header h2',
+    '.hiring-organization',
+    'h2[class*="company"]',
+    'div[class*="companyName"]'
+  ];
+
+  for (const selector of nameSelectors) {
+    const el = document.querySelector(selector);
+    if (el && el.innerText.trim()) {
+      return el.innerText.trim();
+    }
+  }
+
+  // 3. Fallback: Parse og:title or document.title
+  const ogTitle = document.querySelector('meta[property="og:title"]');
+  const titleText = ogTitle ? ogTitle.content : document.title;
+  if (titleText) {
+    if (titleText.includes(' at ')) {
+      const parts = titleText.split(' at ');
+      return parts[parts.length - 1].split('|')[0].split('-')[0].trim();
+    }
+    if (titleText.includes(' @ ')) {
+      return titleText.split(' @ ')[1].split('-')[0].split('|')[0].trim();
+    }
+    if (titleText.includes(' - ')) {
+      const parts = titleText.split(' - ');
+      return parts[0].trim();
+    }
+  }
+
+  return '';
+}
+
 // Helper: Detect Form Fields and Questions
 function detectQuestions() {
   const fields = [];
