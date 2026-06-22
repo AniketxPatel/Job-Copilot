@@ -30,7 +30,7 @@ export default function App() {
 
   useEffect(() => {
     if (!session) return;
-    
+
     const loadResume = async () => {
       // 1. Check local storage first
       const [savedResume, savedResumePdf, savedResumeName] = await Promise.all([
@@ -38,14 +38,14 @@ export default function App() {
         storage.getResumePdf(),
         storage.getResumeName()
       ]);
-      
+
       if (savedResume && savedResumeName) {
         setResume(savedResume);
         if (savedResumePdf) setResumePdf(savedResumePdf);
         setResumeName(savedResumeName);
         return;
       }
-      
+
       // 2. Local storage empty, fetch from backend API (bypasses Supabase client-side RLS)
       try {
         const res = await fetch('http://localhost:3000/api/get-resume', {
@@ -53,13 +53,13 @@ export default function App() {
             'Authorization': `Bearer ${session.access_token}`
           }
         });
-        
+
         if (res.ok) {
           const profile = await res.json();
           if (profile?.resume_text) {
             let base64Pdf = '';
             let extractedName = '';
-            
+
             if (profile.resume_pdf_url) {
               // Extract original filename from storage URL path
               const urlParts = profile.resume_pdf_url.split('/');
@@ -85,13 +85,13 @@ export default function App() {
                 console.error('Error fetching resume PDF:', e);
               }
             }
-            
+
             await Promise.all([
               storage.saveResume(profile.resume_text),
               storage.saveResumePdf(base64Pdf),
               storage.saveResumeName(extractedName)
             ]);
-            
+
             setResume(profile.resume_text);
             if (base64Pdf) setResumePdf(base64Pdf);
             if (extractedName) setResumeName(extractedName);
@@ -106,7 +106,7 @@ export default function App() {
         setActiveTab('settings');
       }
     };
-    
+
     loadResume();
   }, [session]);
 
@@ -159,7 +159,7 @@ export default function App() {
           }
           if (response) {
             if (response.jd) setJd(response.jd);
-            
+
             // Resolve company website URL via backend API using companyName
             if (response.companyName) {
               setScrapingStatus(`Searching web for official ${response.companyName} site...`);
@@ -309,19 +309,19 @@ export default function App() {
         {!session ? (
           <Auth />
         ) : activeTab === 'settings' ? (
-          <ResumeSettings 
-            resume={resume} 
+          <ResumeSettings
+            resume={resume}
             resumePdf={resumePdf}
             resumeName={resumeName}
-            setResume={setResume} 
+            setResume={setResume}
             setResumePdf={setResumePdf}
             setResumeName={setResumeName}
-            onSave={handleSaveResume} 
-            resumeSavedMessage={resumeSavedMessage} 
+            onSave={handleSaveResume}
+            resumeSavedMessage={resumeSavedMessage}
           />
         ) : (
-          <GenerateForm 
-            resume={resume} 
+          <GenerateForm
+            resume={resume}
             initialJd={jd}
             initialQuestion={question}
             initialCompanyUrl={companyUrl}
