@@ -1,7 +1,8 @@
 import type { GenerateRequest, GenerateResponse } from './types';
 
-const API_URL = 'http://localhost:3000/api/generate';
-const EXTRACT_URL = 'http://localhost:3000/api/extract-resume';
+const BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000';
+const API_URL = `${BASE_URL}/api/generate`;
+const EXTRACT_URL = `${BASE_URL}/api/extract-resume`;
 
 export const extractResume = async (file: File, token?: string): Promise<{ text: string; resume_pdf_url?: string }> => {
   const formData = new FormData();

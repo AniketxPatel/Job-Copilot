@@ -6,6 +6,8 @@ import { ResumeSettings } from './components/ResumeSettings';
 import { GenerateForm } from './components/GenerateForm';
 import { Auth } from './components/Auth';
 
+const BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000';
+
 export default function App() {
   const [activeTab, setActiveTab] = useState<'generate' | 'settings'>('generate');
   const [resume, setResume] = useState('');
@@ -48,7 +50,7 @@ export default function App() {
 
       // 2. Local storage empty, fetch from backend API (bypasses Supabase client-side RLS)
       try {
-        const res = await fetch('http://localhost:3000/api/get-resume', {
+        const res = await fetch(`${BASE_URL}/api/get-resume`, {
           headers: {
             'Authorization': `Bearer ${session.access_token}`
           }
@@ -164,7 +166,7 @@ export default function App() {
             if (response.companyName) {
               setScrapingStatus(`Searching web for official ${response.companyName} site...`);
               try {
-                const res = await fetch('http://localhost:3000/api/company-details', {
+                const res = await fetch(`${BASE_URL}/api/company-details`, {
                   method: 'POST',
                   headers: { 'Content-Type': 'application/json' },
                   body: JSON.stringify({ companyName: response.companyName })
