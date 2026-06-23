@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { createClient } from '@supabase/supabase-js';
+import Image from 'next/image';
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || '';
 const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '';
@@ -66,17 +67,13 @@ export default function ResetPasswordPage() {
   return (
     <div className="min-h-screen bg-slate-950 text-slate-100 flex items-center justify-center p-4 relative overflow-hidden font-sans">
       {/* Background gradients */}
-      <div className="absolute top-0 left-0 w-full h-96 bg-gradient-to-br from-indigo-600/10 via-purple-600/5 to-transparent -z-10 blur-3xl rounded-full" />
+      <div className="absolute top-0 left-0 w-full h-96 bg-gradient-to-br from-teal-600/10 via-emerald-600/5 to-transparent -z-10 blur-3xl rounded-full" />
       <div className="absolute bottom-0 right-0 w-96 h-96 bg-gradient-to-tl from-blue-600/10 to-transparent -z-10 blur-3xl rounded-full" />
 
       <div className="w-full max-w-md bg-slate-900/60 border border-slate-800/80 rounded-2xl p-8 shadow-2xl backdrop-blur-md">
         <div className="flex items-center gap-2 mb-6 justify-center">
-          <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center shadow-lg shadow-indigo-500/20">
-            <svg className="w-4 h-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
-            </svg>
-          </div>
-          <h1 className="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-indigo-400 to-purple-400 tracking-tight">
+          <Image src="/LOGO.png" alt="Job Copilot Logo" width={64} height={64} className="object-contain -mx-4 -my-4" />
+          <h1 className="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-teal-400 to-emerald-400 tracking-tight">
             Job Copilot
           </h1>
         </div>
@@ -96,7 +93,7 @@ export default function ResetPasswordPage() {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
-              className="w-full bg-slate-950 border border-slate-800 rounded-lg px-3.5 py-2.5 text-sm text-slate-200 placeholder:text-slate-600 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-all"
+              className="w-full bg-slate-950 border border-slate-800 rounded-lg px-3.5 py-2.5 text-sm text-slate-200 placeholder:text-slate-600 focus:outline-none focus:border-teal-500 focus:ring-1 focus:ring-teal-500 transition-all"
               placeholder="••••••••"
             />
           </div>
@@ -108,7 +105,7 @@ export default function ResetPasswordPage() {
               value={confirmPassword}
               onChange={(e) => setConfirmPassword(e.target.value)}
               required
-              className="w-full bg-slate-950 border border-slate-800 rounded-lg px-3.5 py-2.5 text-sm text-slate-200 placeholder:text-slate-600 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-all"
+              className="w-full bg-slate-950 border border-slate-800 rounded-lg px-3.5 py-2.5 text-sm text-slate-200 placeholder:text-slate-600 focus:outline-none focus:border-teal-500 focus:ring-1 focus:ring-teal-500 transition-all"
               placeholder="••••••••"
             />
           </div>
@@ -128,7 +125,7 @@ export default function ResetPasswordPage() {
           <button
             type="submit"
             disabled={loading}
-            className="w-full py-3 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white rounded-xl font-medium shadow-lg shadow-indigo-500/20 transition-all duration-200 transform hover:scale-[1.01] active:scale-95 disabled:opacity-50 cursor-pointer"
+            className="w-full py-3 bg-gradient-to-r from-teal-600 to-emerald-600 hover:from-teal-500 hover:to-emerald-500 text-white rounded-xl font-medium shadow-lg shadow-teal-500/20 transition-all duration-200 transform hover:scale-[1.01] active:scale-95 disabled:opacity-50 cursor-pointer"
           >
             {loading ? 'Updating password...' : 'Reset Password'}
           </button>

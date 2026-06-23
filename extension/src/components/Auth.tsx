@@ -67,7 +67,7 @@ export function Auth() {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
-              className="w-full bg-slate-900/50 border border-slate-800 rounded-lg px-3 py-2 text-sm text-slate-200 placeholder:text-slate-600 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500"
+              className="w-full bg-slate-900/50 border border-slate-800 rounded-lg px-3 py-2 text-sm text-slate-200 placeholder:text-slate-600 focus:outline-none focus:border-teal-500 focus:ring-1 focus:ring-teal-500"
               placeholder="you@example.com"
             />
           </div>
@@ -83,7 +83,7 @@ export function Auth() {
                       setIsForgotPassword(true);
                       setMessage('');
                     }}
-                    className="text-[10px] text-indigo-400 hover:text-indigo-300 transition-colors"
+                    className="text-[10px] text-teal-400 hover:text-teal-300 transition-colors"
                   >
                     Forgot Password?
                   </button>
@@ -94,14 +94,14 @@ export function Auth() {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required
-                className="w-full bg-slate-900/50 border border-slate-800 rounded-lg px-3 py-2 text-sm text-slate-200 placeholder:text-slate-600 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500"
+                className="w-full bg-slate-900/50 border border-slate-800 rounded-lg px-3 py-2 text-sm text-slate-200 placeholder:text-slate-600 focus:outline-none focus:border-teal-500 focus:ring-1 focus:ring-teal-500"
                 placeholder="••••••••"
               />
             </div>
           )}
           
           {message && (
-            <div className="text-xs p-2 rounded bg-slate-800/50 text-indigo-300 text-center leading-relaxed">
+            <div className="text-xs p-2 rounded bg-slate-800/50 text-teal-300 text-center leading-relaxed">
               {message}
             </div>
           )}
@@ -109,7 +109,7 @@ export function Auth() {
           <button
             type="submit"
             disabled={loading}
-            className="w-full py-2.5 text-sm font-medium bg-indigo-600 hover:bg-indigo-500 text-white rounded-lg shadow-lg shadow-indigo-500/20 transition-colors disabled:opacity-50 cursor-pointer"
+            className="w-full py-2.5 text-sm font-medium bg-teal-600 hover:bg-teal-500 text-white rounded-lg shadow-lg shadow-teal-500/20 transition-colors disabled:opacity-50 cursor-pointer"
           >
             {loading 
               ? 'Processing...' 
@@ -128,7 +128,7 @@ export function Auth() {
                 setIsForgotPassword(false);
                 setMessage('');
               }}
-              className="text-xs text-slate-400 hover:text-indigo-400 transition-colors cursor-pointer"
+              className="text-xs text-slate-400 hover:text-teal-400 transition-colors cursor-pointer"
             >
               Back to Login
             </button>
@@ -138,7 +138,7 @@ export function Auth() {
                 setIsSignUp(!isSignUp);
                 setMessage('');
               }}
-              className="text-xs text-slate-400 hover:text-indigo-400 transition-colors cursor-pointer"
+              className="text-xs text-slate-400 hover:text-teal-400 transition-colors cursor-pointer"
             >
               {isSignUp ? 'Already have an account? Log in' : "Don't have an account? Sign up"}
             </button>

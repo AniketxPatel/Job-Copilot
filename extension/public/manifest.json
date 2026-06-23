@@ -13,8 +13,18 @@
     "http://*/*",
     "https://*/*"
   ],
+  "icons": {
+    "16": "LOGO.png",
+    "48": "LOGO.png",
+    "128": "LOGO.png"
+  },
   "action": {
-    "default_popup": "index.html"
+    "default_popup": "index.html",
+    "default_icon": {
+      "16": "LOGO.png",
+      "48": "LOGO.png",
+      "128": "LOGO.png"
+    }
   },
   "content_scripts": [
     {

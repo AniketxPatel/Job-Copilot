@@ -225,17 +225,17 @@ export default function App() {
   };
 
   return (
-    <div className="w-[450px] min-h-[550px] bg-slate-950 text-slate-100 font-sans p-4 relative overflow-hidden selection:bg-indigo-500/30 flex flex-col">
+    <div className="w-[450px] min-h-[550px] bg-slate-950 text-slate-100 font-sans p-4 relative overflow-hidden selection:bg-teal-500/30 flex flex-col">
       {/* Page analysis overlay loader */}
       {isScraping && (
         <div className="absolute inset-0 bg-slate-950/85 backdrop-blur-md z-50 flex flex-col items-center justify-center gap-4 animate-in fade-in duration-300">
           <div className="relative flex items-center justify-center">
             {/* Spinning abstract gradient ring */}
-            <div className="animate-spin rounded-full h-12 w-12 border-2 border-indigo-500 border-t-transparent"></div>
-            <div className="animate-ping absolute rounded-full h-8 w-8 bg-indigo-500/10"></div>
+            <div className="animate-spin rounded-full h-12 w-12 border-2 border-teal-500 border-t-transparent"></div>
+            <div className="animate-ping absolute rounded-full h-8 w-8 bg-teal-500/10"></div>
           </div>
           <div className="flex flex-col items-center gap-1.5 text-center px-6">
-            <span className="text-sm font-semibold bg-clip-text text-transparent bg-gradient-to-r from-indigo-300 to-purple-300 animate-pulse tracking-wide">
+            <span className="text-sm font-semibold bg-clip-text text-transparent bg-gradient-to-r from-teal-300 to-emerald-300 animate-pulse tracking-wide">
               {scrapingStatus}
             </span>
             <span className="text-[11px] text-slate-400">
@@ -246,17 +246,13 @@ export default function App() {
       )}
 
       {/* Background gradients */}
-      <div className="absolute top-0 left-0 w-full h-64 bg-gradient-to-br from-indigo-600/20 via-purple-600/10 to-transparent -z-10 blur-3xl rounded-full" />
+      <div className="absolute top-0 left-0 w-full h-64 bg-gradient-to-br from-teal-600/20 via-emerald-600/10 to-transparent -z-10 blur-3xl rounded-full" />
       <div className="absolute bottom-0 right-0 w-64 h-64 bg-gradient-to-tl from-blue-600/20 to-transparent -z-10 blur-3xl rounded-full" />
 
       <header className="flex items-center justify-between border-b border-slate-800 pb-4 mb-5 shrink-0">
         <div className="flex items-center gap-2">
-          <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center shadow-lg shadow-indigo-500/20">
-            <svg className="w-4 h-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
-            </svg>
-          </div>
-          <h1 className="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-indigo-400 to-purple-400 tracking-tight">
+          <img src="/LOGO.png" alt="Job Copilot Logo" className="w-20 h-20 object-contain -mx-4 -my-4" />
+          <h1 className="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-teal-400 to-emerald-400 tracking-tight">
             Job Copilot
           </h1>
         </div>
@@ -267,7 +263,7 @@ export default function App() {
                 onClick={() => setActiveTab('generate')}
                 className={clsx(
                   "px-3 py-1.5 text-xs font-medium rounded-md transition-all duration-200",
-                  activeTab === 'generate' ? "bg-indigo-500 text-white shadow-md shadow-indigo-500/20" : "text-slate-400 hover:text-slate-200 hover:bg-slate-800"
+                  activeTab === 'generate' ? "bg-teal-500 text-white shadow-md shadow-teal-500/20" : "text-slate-400 hover:text-slate-200 hover:bg-slate-800"
                 )}
               >
                 Generate
@@ -276,7 +272,7 @@ export default function App() {
                 onClick={() => setActiveTab('settings')}
                 className={clsx(
                   "px-3 py-1.5 text-xs font-medium rounded-md transition-all duration-200",
-                  activeTab === 'settings' ? "bg-indigo-500 text-white shadow-md shadow-indigo-500/20" : "text-slate-400 hover:text-slate-200 hover:bg-slate-800"
+                  activeTab === 'settings' ? "bg-teal-500 text-white shadow-md shadow-teal-500/20" : "text-slate-400 hover:text-slate-200 hover:bg-slate-800"
                 )}
               >
                 Resume

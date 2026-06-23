@@ -167,10 +167,10 @@ export function GenerateForm({
                 type="button" 
                 onClick={onReScrape} 
                 disabled={isScraping || isGenerating}
-                className="text-[10px] text-indigo-400 hover:text-indigo-300 disabled:text-indigo-400/50 transition-colors uppercase font-bold tracking-wider cursor-pointer flex items-center gap-1.5"
+                className="text-[10px] text-teal-400 hover:text-teal-300 disabled:text-teal-400/50 transition-colors uppercase font-bold tracking-wider cursor-pointer flex items-center gap-1.5"
               >
                 {isScraping && (
-                  <svg className="animate-spin h-3.5 w-3.5 text-indigo-400" fill="none" viewBox="0 0 24 24">
+                  <svg className="animate-spin h-3.5 w-3.5 text-teal-400" fill="none" viewBox="0 0 24 24">
                     <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                     <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                   </svg>
@@ -183,7 +183,7 @@ export function GenerateForm({
             {...register('question', { required: true })}
             disabled={isGenerating}
             placeholder="e.g. Why do you want to work here?"
-            className="w-full h-20 bg-slate-900/50 border border-slate-800 rounded-lg p-3 text-sm text-slate-200 focus:outline-none focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500/50 transition-all resize-none placeholder:text-slate-600 disabled:opacity-50 disabled:cursor-not-allowed"
+            className="w-full h-20 bg-slate-900/50 border border-slate-800 rounded-lg p-3 text-sm text-slate-200 focus:outline-none focus:ring-2 focus:ring-teal-500/50 focus:border-teal-500/50 transition-all resize-none placeholder:text-slate-600 disabled:opacity-50 disabled:cursor-not-allowed"
           />
         </div>
 
@@ -194,7 +194,7 @@ export function GenerateForm({
               {...register('jobDescription')}
               disabled={isGenerating}
               placeholder="Auto-scraped or paste details here..."
-              className="w-full h-28 bg-slate-900/50 border border-slate-800 rounded-lg p-3 text-sm text-slate-200 focus:outline-none focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500/50 transition-all resize-none placeholder:text-slate-600 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="w-full h-28 bg-slate-900/50 border border-slate-800 rounded-lg p-3 text-sm text-slate-200 focus:outline-none focus:ring-2 focus:ring-teal-500/50 focus:border-teal-500/50 transition-all resize-none placeholder:text-slate-600 disabled:opacity-50 disabled:cursor-not-allowed"
             />
           </div>
 
@@ -204,7 +204,7 @@ export function GenerateForm({
               {...register('companyUrl')}
               disabled={isGenerating}
               placeholder="https://company.com"
-              className="w-full bg-slate-900/50 border border-slate-800 rounded-lg p-2.5 text-sm text-slate-200 focus:outline-none focus:ring-2 focus:ring-indigo-500/50 transition-all placeholder:text-slate-600 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="w-full bg-slate-900/50 border border-slate-800 rounded-lg p-2.5 text-sm text-slate-200 focus:outline-none focus:ring-2 focus:ring-teal-500/50 transition-all placeholder:text-slate-600 disabled:opacity-50 disabled:cursor-not-allowed"
             />
           </div>
           
@@ -215,7 +215,7 @@ export function GenerateForm({
                 <select
                   {...register('tone')}
                   disabled={isGenerating}
-                  className="w-full bg-slate-900/50 border border-slate-800 rounded-lg p-2.5 pr-8 text-sm text-slate-200 focus:outline-none focus:ring-2 focus:ring-indigo-500/50 transition-all appearance-none cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="w-full bg-slate-900/50 border border-slate-800 rounded-lg p-2.5 pr-8 text-sm text-slate-200 focus:outline-none focus:ring-2 focus:ring-teal-500/50 transition-all appearance-none cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   <option value="conversational">Conversational</option>
                   <option value="technical">Technical</option>
@@ -234,7 +234,7 @@ export function GenerateForm({
                 <select
                   {...register('length')}
                   disabled={isGenerating}
-                  className="w-full bg-slate-900/50 border border-slate-800 rounded-lg p-2.5 pr-8 text-sm text-slate-200 focus:outline-none focus:ring-2 focus:ring-indigo-500/50 transition-all appearance-none cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="w-full bg-slate-900/50 border border-slate-800 rounded-lg p-2.5 pr-8 text-sm text-slate-200 focus:outline-none focus:ring-2 focus:ring-teal-500/50 transition-all appearance-none cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   <option value="short">Short (~50 words)</option>
                   <option value="medium">Medium (~150 words)</option>
@@ -259,19 +259,19 @@ export function GenerateForm({
         {!answer && !isGenerating && (
           <button
             type="submit"
-            className="w-full py-3 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white rounded-xl font-medium shadow-lg shadow-indigo-500/20 transition-all duration-200 transform hover:scale-[1.01] active:scale-95 cursor-pointer"
+            className="w-full py-3 bg-gradient-to-r from-teal-600 to-emerald-600 hover:from-teal-500 hover:to-emerald-500 text-white rounded-xl font-medium shadow-lg shadow-teal-500/20 transition-all duration-200 transform hover:scale-[1.01] active:scale-95 cursor-pointer"
           >
             Generate Answer
           </button>
         )}
 
         {isGenerating && (
-          <div className="w-full py-4 border border-indigo-500/30 bg-indigo-500/10 rounded-xl flex items-center justify-center gap-3">
-            <svg className="animate-spin h-5 w-5 text-indigo-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+          <div className="w-full py-4 border border-teal-500/30 bg-teal-500/10 rounded-xl flex items-center justify-center gap-3">
+            <svg className="animate-spin h-5 w-5 text-teal-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
               <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
               <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
             </svg>
-            <span className="text-sm font-medium text-indigo-300">Crafting response...</span>
+            <span className="text-sm font-medium text-teal-300">Crafting response...</span>
           </div>
         )}
       </form>
@@ -301,7 +301,7 @@ export function GenerateForm({
               </button>
            </div>
            <div className="relative group">
-             <div className="absolute -inset-0.5 bg-gradient-to-r from-indigo-500 to-purple-500 rounded-xl blur opacity-30 group-hover:opacity-50 transition duration-500"></div>
+             <div className="absolute -inset-0.5 bg-gradient-to-r from-teal-500 via-emerald-500 to-blue-500 rounded-xl blur opacity-30 group-hover:opacity-50 transition duration-500"></div>
              <div className="relative bg-slate-900 border border-slate-700/50 rounded-xl p-4 max-h-[160px] overflow-y-auto custom-scrollbar">
                 <p className="text-sm text-slate-200 leading-relaxed whitespace-pre-wrap">{answer}</p>
              </div>
@@ -327,7 +327,7 @@ export function GenerateForm({
                     length: watch('length')
                   });
                 }}
-                className="flex-1 py-2 bg-indigo-600 hover:bg-indigo-500 text-white rounded-lg shadow-lg shadow-indigo-500/20 transition-colors cursor-pointer"
+                className="flex-1 py-2 bg-teal-600 hover:bg-teal-500 text-white rounded-lg shadow-lg shadow-teal-500/20 transition-colors cursor-pointer"
               >
                 Finish
               </button>
