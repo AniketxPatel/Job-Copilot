@@ -28,6 +28,7 @@ export function GenerateForm({
   const [isGenerating, setIsGenerating] = useState(false);
   const [error, setError] = useState('');
   const [copied, setCopied] = useState(false);
+  const [showCustomPrompt, setShowCustomPrompt] = useState(false);
 
   const { register, handleSubmit, watch, reset, setValue, getValues } = useForm<GenerateRequest>({
     defaultValues: {
@@ -35,7 +36,8 @@ export function GenerateForm({
       jobDescription: initialJd,
       companyUrl: initialCompanyUrl,
       tone: 'conversational',
-      length: 'medium'
+      length: 'short',
+      customPrompt: ''
     }
   });
 
@@ -51,7 +53,8 @@ export function GenerateForm({
             jobDescription: initialJd,
             companyUrl: initialCompanyUrl,
             tone: state.tone || 'conversational',
-            length: state.length || 'medium'
+            length: state.length || 'short',
+            customPrompt: ''
           });
           setAnswer('');
           storage.saveGeneratedAnswer('');
@@ -61,8 +64,12 @@ export function GenerateForm({
             ...state,
             jobDescription: state.jobDescription || initialJd,
             question: state.question || initialQuestion,
-            companyUrl: state.companyUrl || initialCompanyUrl
+            companyUrl: state.companyUrl || initialCompanyUrl,
+            customPrompt: state.customPrompt || ''
           });
+          if (state.customPrompt) {
+            setShowCustomPrompt(true);
+          }
         }
       } else {
         if (initialJd) setValue('jobDescription', initialJd);
@@ -248,6 +255,25 @@ export function GenerateForm({
               </div>
             </div>
           </div>
+
+          {/* Collapsible Custom Prompt Template */}
+          <div className="space-y-2 pt-1">
+            <button
+              type="button"
+              onClick={() => setShowCustomPrompt(!showCustomPrompt)}
+              className="text-[10px] font-bold text-teal-400 hover:text-teal-300 transition-colors uppercase tracking-wider flex items-center gap-1.5 cursor-pointer"
+            >
+              <span>{showCustomPrompt ? '▼' : '▶'} Custom Template / Instructions (Optional)</span>
+            </button>
+            {showCustomPrompt && (
+              <textarea
+                {...register('customPrompt')}
+                disabled={isGenerating}
+                placeholder="e.g. Focus heavily on my experience with React and Tailwind, keep it under 3 sentences, and end with a call to action..."
+                className="w-full h-20 bg-slate-900/50 border border-slate-800 rounded-lg p-3 text-sm text-slate-200 focus:outline-none focus:ring-2 focus:ring-teal-500/50 focus:border-teal-500/50 transition-all resize-none placeholder:text-slate-600 disabled:opacity-50 disabled:cursor-not-allowed"
+              />
+            )}
+          </div>
         </div>
 
         {error && (
@@ -324,7 +350,8 @@ export function GenerateForm({
                     jobDescription: watch('jobDescription'),
                     companyUrl: watch('companyUrl'),
                     tone: watch('tone'),
-                    length: watch('length')
+                    length: watch('length'),
+                    customPrompt: watch('customPrompt')
                   });
                 }}
                 className="flex-1 py-2 bg-teal-600 hover:bg-teal-500 text-white rounded-lg shadow-lg shadow-teal-500/20 transition-colors cursor-pointer"

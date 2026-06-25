@@ -5,6 +5,7 @@ export interface GenerateRequest {
   companyUrl: string;
   tone: string;
   length: string;
+  customPrompt?: string;
 }
 
 export interface GenerateResponse {

@@ -39,7 +39,8 @@ export const generateAnswer = async (data: GenerateRequest, token?: string): Pro
   });
 
   if (!response.ok) {
-    throw new Error('Failed to generate answer');
+    const errData = await response.json().catch(() => null);
+    throw new Error(errData?.error || 'Failed to generate answer');
   }
 
   return response.json();

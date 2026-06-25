@@ -8,7 +8,29 @@ const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
 export async function generateJobAnswer(data: GenerateRequest, companySummary: string): Promise<string> {
   const wordLimit = data.length === 'short' ? 50 : data.length === 'long' ? 300 : 150;
 
-  const prompt = `You are a world-class career coach and ex-FAANG recruiter who has reviewed 
+  let prompt = '';
+  if (data.customPrompt && data.customPrompt.trim()) {
+    prompt = `You are an AI career assistant. Write a job application response by following the candidate's custom instructions/template below.
+
+CONTEXT:
+- RESUME:
+${data.resume}
+
+- JOB DESCRIPTION:
+${data.jobDescription || 'Not provided'}
+
+- COMPANY SUMMARY:
+${companySummary || 'Not provided'}
+
+- QUESTION:
+${data.question}
+
+CUSTOM INSTRUCTIONS / TEMPLATE:
+${data.customPrompt}
+
+Write the answer following the custom instructions/template exactly. Do not output any notes, introductions, or tags. Just the final answer.`;
+  } else {
+    prompt = `You are a world-class career coach and ex-FAANG recruiter who has reviewed 
 over 50,000 job applications. Your job is to write application answers that 
 get candidates shortlisted.
 
@@ -76,6 +98,7 @@ ${data.question}
 
 Write the answer now. Remember: ${wordLimit} words max, human voice, answer the 
 actual question, use only real experience from the resume.`;
+  }
 
   try {
     const response = await ai.models.generateContent({
