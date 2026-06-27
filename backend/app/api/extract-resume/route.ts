@@ -2,14 +2,16 @@ import { NextResponse } from 'next/server';
 import PDFParser from 'pdf2json';
 import { supabase } from '../../../lib/supabase';
 
+const CORS_HEADERS = {
+  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Methods': 'POST, OPTIONS',
+  'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+};
+
 export async function OPTIONS() {
   return new NextResponse(null, {
     status: 200,
-    headers: {
-      'Access-Control-Allow-Origin': '*',
-      'Access-Control-Allow-Methods': 'POST, OPTIONS',
-      'Access-Control-Allow-Headers': 'Content-Type, Authorization',
-    },
+    headers: CORS_HEADERS,
   });
 }
 
@@ -37,22 +39,36 @@ export async function POST(req: Request) {
     const token = authHeader?.replace('Bearer ', '');
     
     if (!token) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401, headers: { 'Access-Control-Allow-Origin': '*' } });
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401, headers: CORS_HEADERS });
     }
 
     const { data: { user }, error: authError } = await supabase.auth.getUser(token);
     
     if (authError || !user) {
-      return NextResponse.json({ error: 'Invalid token' }, { status: 401, headers: { 'Access-Control-Allow-Origin': '*' } });
+      return NextResponse.json({ error: 'Invalid token' }, { status: 401, headers: CORS_HEADERS });
     }
 
-    const formData = await req.formData();
+    let formData: FormData;
+    try {
+      formData = await req.formData();
+    } catch {
+      return NextResponse.json({ error: 'Invalid form data payload.' }, { status: 400, headers: CORS_HEADERS });
+    }
+
     const file = formData.get('file') as File | null;
 
     if (!file) {
       return NextResponse.json(
         { error: 'No file provided' },
-        { status: 400, headers: { 'Access-Control-Allow-Origin': '*' } }
+        { status: 400, headers: CORS_HEADERS }
+      );
+    }
+
+    // Limit file size to 10MB to protect the serverless instance from memory overflow
+    if (file.size > 10 * 1024 * 1024) {
+      return NextResponse.json(
+        { error: 'File size exceeds the 10MB limit.' },
+        { status: 400, headers: CORS_HEADERS }
       );
     }
 
@@ -70,7 +86,7 @@ export async function POST(req: Request) {
     if (!text.trim()) {
       return NextResponse.json(
         { error: 'Could not extract text — is the PDF scanned/image-based?' },
-        { status: 422, headers: { 'Access-Control-Allow-Origin': '*' } }
+        { status: 422, headers: CORS_HEADERS }
       );
     }
 
@@ -110,14 +126,14 @@ export async function POST(req: Request) {
 
     return NextResponse.json(
       { text, resume_pdf_url: publicUrlData.publicUrl },
-      { headers: { 'Access-Control-Allow-Origin': '*' } }
+      { headers: CORS_HEADERS }
     );
 
   } catch (error: any) {
     console.error('Extraction/Upload Error:', error);
     return NextResponse.json(
       { error: error.message || 'Failed to process file' },
-      { status: 500, headers: { 'Access-Control-Allow-Origin': '*' } }
+      { status: 500, headers: CORS_HEADERS }
     );
   }
 }

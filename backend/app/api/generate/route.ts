@@ -3,9 +3,31 @@ import { generateJobAnswer } from '../../../lib/gemini';
 import { supabase } from '../../../lib/supabase';
 import { GenerateRequest } from '../../../lib/types';
 
-// Simple scraper without external libraries
+const CORS_HEADERS = {
+  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Methods': 'POST, OPTIONS',
+  'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+};
+
+// Cache scraped company details for 1 hour to speed up regenerations
+const companyCache = new Map<string, { text: string; expiresAt: number }>();
+const CACHE_TTL = 60 * 60 * 1000; // 1 hour
+
 async function fetchCompanySummary(url: string): Promise<string> {
   if (!url) return '';
+  
+  // Basic URL Validation
+  try {
+    new URL(url.startsWith('http') ? url : `https://${url}`);
+  } catch {
+    return 'No company information available.';
+  }
+
+  const cached = companyCache.get(url);
+  if (cached && Date.now() < cached.expiresAt) {
+    return cached.text;
+  }
+
   try {
     const validUrl = url.startsWith('http') ? url : `https://${url}`;
     const response = await fetch(validUrl, {
@@ -27,10 +49,10 @@ async function fetchCompanySummary(url: string): Promise<string> {
     const text = noStyles.replace(/<[^>]+>/g, ' ');
     
     // Condense whitespace
-    const cleanText = text.replace(/\s+/g, ' ').trim();
+    const cleanText = text.replace(/\s+/g, ' ').trim().slice(0, 2000);
     
-    // Return a chunk of text as the summary
-    return cleanText.slice(0, 2000);
+    companyCache.set(url, { text: cleanText, expiresAt: Date.now() + CACHE_TTL });
+    return cleanText;
   } catch (err) {
     console.error('Scraping error:', err);
     return 'No company information available.';
@@ -40,11 +62,7 @@ async function fetchCompanySummary(url: string): Promise<string> {
 export async function OPTIONS() {
   return new NextResponse(null, {
     status: 200,
-    headers: {
-      'Access-Control-Allow-Origin': '*',
-      'Access-Control-Allow-Methods': 'POST, OPTIONS',
-      'Access-Control-Allow-Headers': 'Content-Type, Authorization',
-    },
+    headers: CORS_HEADERS,
   });
 }
 
@@ -54,19 +72,24 @@ export async function POST(req: Request) {
     const token = authHeader?.replace('Bearer ', '');
     
     if (!token) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401, headers: { 'Access-Control-Allow-Origin': '*' } });
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401, headers: CORS_HEADERS });
     }
 
     const { data: { user }, error: authError } = await supabase.auth.getUser(token);
     
     if (authError || !user) {
-      return NextResponse.json({ error: 'Invalid token' }, { status: 401, headers: { 'Access-Control-Allow-Origin': '*' } });
+      return NextResponse.json({ error: 'Invalid token' }, { status: 401, headers: CORS_HEADERS });
     }
 
-    const data = (await req.json()) as GenerateRequest;
+    let data: GenerateRequest;
+    try {
+      data = (await req.json()) as GenerateRequest;
+    } catch {
+      return NextResponse.json({ error: 'Invalid JSON request body.' }, { status: 400, headers: CORS_HEADERS });
+    }
     
     if (!data.question) {
-      return NextResponse.json({ error: 'Application Question is required.' }, { status: 400, headers: { 'Access-Control-Allow-Origin': '*' } });
+      return NextResponse.json({ error: 'Application Question is required.' }, { status: 400, headers: CORS_HEADERS });
     }
 
     const { data: profile } = await supabase
@@ -76,7 +99,7 @@ export async function POST(req: Request) {
       .single();
 
     if (!profile?.resume_text) {
-      return NextResponse.json({ error: 'No resume found in your account. Please upload one first.' }, { status: 400, headers: { 'Access-Control-Allow-Origin': '*' } });
+      return NextResponse.json({ error: 'No resume found in your account. Please upload one first.' }, { status: 400, headers: CORS_HEADERS });
     }
 
     // Override the resume data sent from client with the verified one from DB
@@ -86,17 +109,13 @@ export async function POST(req: Request) {
     const answer = await generateJobAnswer(data, companySummary);
     
     return NextResponse.json({ answer }, {
-      headers: {
-        'Access-Control-Allow-Origin': '*',
-      }
+      headers: CORS_HEADERS,
     });
   } catch (error: any) {
     console.error('API Route Error:', error);
     return NextResponse.json({ error: error.message || 'Internal Server Error' }, { 
       status: 500,
-      headers: {
-        'Access-Control-Allow-Origin': '*',
-      }
+      headers: CORS_HEADERS,
     });
   }
 }
